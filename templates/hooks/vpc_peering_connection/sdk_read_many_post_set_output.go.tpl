@@ -40,3 +40,11 @@
 	} else if isVPCPeeringConnectionCreating(res) {
 		return res, requeueWaitWhileCreating
 	}
+
+	// During adoption, we need to ensure required fields are populated
+	if ko.Spec.VPCID == nil && ko.Spec.VPCRef == nil {
+		// If the VPC peering connection exists, we can get the VPC ID from the requester info
+		if resp.VpcPeeringConnections[0].RequesterVpcInfo != nil && resp.VpcPeeringConnections[0].RequesterVpcInfo.VpcId != nil {
+			ko.Spec.VPCID = resp.VpcPeeringConnections[0].RequesterVpcInfo.VpcId
+		}
+	}
